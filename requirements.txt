@@ -1,0 +1,5 @@
+flask==3.0.3
+deep-translator==1.11.4
+torch>=2.2
+numpy
+requests

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>ISL Bridge</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+<header>
+  <a class="logo" href="/" style="text-decoration:none;color:inherit">🤟 ISL <span>Bridge</span></a>
+  <div class="hspace"></div>
+  <label class="langbox"><span>🌐</span><select id="langSel" aria-label="Language"></select></label>
+  <div id="acct">
+  {% if me %}<span class="who">{{ me }}</span>
+    <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost sm" data-i18n="acct_out">Log out</button></form>
+  {% endif %}
+  </div>
+  <button id="btnTheme" class="iconbtn" title="Dark / Light mode">🌙</button>
+</header>
+{% block shell %}<main>
+  {% for m in get_flashed_messages() %}<div class="flash" data-auto>{{ m }}</div>{% endfor %}
+  {% block body %}{% endblock %}
+</main>{% endblock %}
+<script>
+window.UI_EN={{ ui_en|tojson }};
+window.ISL_LANGS={{ langs|tojson }};
+window.ISL={ role: {{ (role or '')|tojson }}, name: {{ (me or '')|tojson }} };
+</script>
+{% block pre %}{% endblock %}
+<script src="/static/js/i18n.js?v=3"></script>
+<script>
+(function(){
+  const r=document.documentElement, b=document.getElementById("btnTheme");
+  const set=t=>{ r.setAttribute("data-theme",t); b.textContent=t==="dark"?"🌙":"☀️"; try{localStorage.setItem("isl_theme",t);}catch(e){} };
+  set((()=>{try{return localStorage.getItem("isl_theme")||"dark";}catch(e){return "dark";}})());
+  b.onclick=()=>set(r.getAttribute("data-theme")==="dark"?"light":"dark");
+  I18N.mountPicker(document.getElementById("langSel")); I18N.applyLang();
+})();
+</script>
+{% block js %}{% endblock %}
+</body></html>

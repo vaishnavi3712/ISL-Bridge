@@ -1,0 +1,8 @@
+{"staff":{
+ "common":["Hello, how can I help you?","Please wait a moment.","Please show me your document.","Do you need a pen and paper?","Thank you.","Please repeat that slowly.","Is that all right?"],
+ "hospital":["Do you have an appointment?","Where does it hurt?","Do you have any allergies?","The doctor will see you now.","Please sign this consent form.","Please take this prescription to the pharmacy."],
+ "bank":["Do you want to deposit or withdraw?","Please fill in this form.","I need your ID proof.","Your account is updated.","Please sign here.","Please enter your PIN privately."],
+ "railway":["Which train do you want?","Your train leaves from platform number five.","Your ticket is confirmed.","The train is running late.","Do you want a refund?","Please go to the counter on your left."],
+ "school":["Please take a seat.","Which class are you looking for?","The principal will meet you shortly.","Please fill in the admission form.","Your child is doing well.","The exam starts at ten."],
+ "general":["Please take a seat.","Please fill in this form.","Your work is done.","The office closes at five."]},
+ "signer":["I am deaf. Please be patient.","Yes","No","I did not understand.","Please write it down.","I need help.","Where is the toilet?","How much does it cost?","Thank you."]}

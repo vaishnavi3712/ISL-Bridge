@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block bodyclass %}deskpage{% endblock %}
+{% block shell %}
+<div class="desk">
+  <section class="card pane">
+    <h2><span class="dir d2" data-i18n="d_staff">Staff</span> <span id="avStatus" class="kv"></span></h2>
+    <div class="row">
+      <input id="txt" data-i18n-ph="d_type" placeholder="Type a message" aria-label="Message" style="flex:1;min-width:120px">
+      <button class="btn green" id="send" data-i18n="d_send">Send</button>
+      <button class="btn" id="mic">🎙️ <span id="micTxt" data-i18n="d_speak">Speak</span></button>
+    </div>
+    <div class="kv" data-i18n="d_seen">What the customer sees</div>
+    <div class="avatar-wrap">
+      <canvas id="avatar" width="420" height="380"></canvas>
+      <div class="nowsign" id="nowSign">—</div>
+    </div>
+    <div class="row">
+      {% if poses %}<label class="switch"><input type="checkbox" id="useData"> <span data-i18n="d_dataset">Use signs recorded from the dataset</span></label>{% endif %}
+    </div>
+  </section>
+  <section class="card pane">
+    <h2>💬 <span data-i18n="d_conv">Conversation</span></h2>
+    <div class="msglog" id="log" aria-live="polite"></div>
+    {% if not model_ready %}<div class="flash" data-auto>Sign recognition model not found in model/. Typing, speaking and quick replies still work.</div>{% endif %}
+  </section>
+  <section class="card pane">
+    <h2><span class="dir d1" data-i18n="d_cust">Customer (signing)</span> <span id="camst" class="kv"></span></h2>
+    <div class="vwrap"><video id="vid" playsinline muted></video><canvas id="skel" class="vc"></canvas></div>
+    <div class="row"><button class="btn" id="camBtn" data-i18n="d_cam">Start camera</button></div>
+    <div class="chips" id="draft" aria-live="polite"></div>
+    <div class="row">
+      <button class="btn green" id="sayDraft" data-i18n="d_sendsent">Send sentence</button>
+      <button class="btn ghost" id="clr" data-i18n="d_clear">Clear</button>
+      <button class="btn ghost" id="fix" data-i18n="d_wrong">Wrong word?</button>
+    </div>
+  </section>
+</div>
+<div class="phrasebar">
+  <div class="kv" data-i18n="d_quick">Quick sentences</div>
+  <div class="chips" id="staffChips">{% for p in staff %}<button class="seqcard" data-auto data-en="{{ p }}">{{ p }}</button>{% endfor %}</div>
+  <div class="kv" data-i18n="d_reply">Customer quick replies</div>
+  <div class="chips" id="signerChips">{% for p in signer %}<button class="seqcard alt" data-auto data-en="{{ p }}">{{ p }}</button>{% endfor %}</div>
+</div>
+{% endblock %}
+{% block pre %}<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/static/js/avatar.js?v=3"></script><script src="/static/js/avatar3d.js?v=3"></script><script src="/static/js/gloss.js?v=3"></script>{% endblock %}
+{% block js %}<script type="module" src="/static/js/desk.js?v=3"></script>{% endblock %}

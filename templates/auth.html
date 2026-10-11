@@ -1,0 +1,23 @@
+{% extends "layout.html" %}{% block body %}
+<div class="card authcard">
+  <h2><span data-i18n="{{ 'a_login' if mode == 'login' else 'a_reg' }}">{{ 'Log in' if mode == 'login' else 'Create account' }}</span>
+      <span class="kv" data-i18n="{{ 'a_org' if target == 'org' else 'a_learner' }}">{{ 'Organisation' if target == 'org' else 'Learner' }}</span></h2>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if mode == 'register' %}
+      <label><span data-i18n="{{ 'a_org_name' if target == 'org' else 'a_name' }}">{{ 'Organisation name' if target == 'org' else 'Your name' }}</span><input name="name" required></label>
+      {% if target == 'org' %}
+      <label><span data-i18n="a_type">Type</span><select name="org_type">{% for t in org_types %}<option>{{ t }}</option>{% endfor %}</select></label>
+      <label><span data-i18n="a_regno">Registration or licence number</span><input name="reg_no" required></label>
+      {% endif %}
+    {% endif %}
+    <label><span data-i18n="a_email">Email</span><input type="email" name="email" required></label>
+    <label><span data-i18n="a_pass">Password</span><input type="password" name="password" minlength="8" required></label>
+    <button class="btn" data-i18n="{{ 'a_login' if mode == 'login' else 'a_reg' }}">{{ 'Log in' if mode == 'login' else 'Create account' }}</button>
+  </form>
+  {% if target == 'org' and mode == 'register' %}<p class="kv" data-i18n="a_wait">We check the registration number before your desk is switched on.</p>{% endif %}
+  <p class="kv">
+    {% if mode == 'login' %}<span data-i18n="a_noacct">No account yet?</span> <a href="/register/{{ target }}" data-i18n="a_reg">Create account</a>
+    {% else %}<span data-i18n="a_have">Already registered?</span> <a href="/login/{{ target }}" data-i18n="a_login">Log in</a>{% endif %}
+  </p>
+</div>{% endblock %}

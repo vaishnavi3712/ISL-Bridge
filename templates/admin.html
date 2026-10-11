@@ -1,0 +1,9 @@
+{% extends "layout.html" %}{% block body %}
+{% if rows is none %}
+<form method="post" class="card authcard stack"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Admin key<input type="password" name="key"></label><button class="btn">Open</button></form>
+{% else %}<h2>Organisations</h2>
+{% for r in rows %}<div class="card"><div><b>{{ r.name }}</b> · {{ r.org_type }} · reg {{ r.reg_no }} · {{ r.email }} · <i>{{ r.status }}</i></div>
+{% if r.status == 'pending' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn green" name="approve" value="{{ r.id }}">Approve</button></form>{% endif %}</div>
+{% else %}<div class="card">No organisation has registered yet.</div>{% endfor %}
+{% endif %}{% endblock %}

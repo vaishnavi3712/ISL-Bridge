@@ -1,0 +1,22 @@
+[
+ {"id":"awareness","title":"Deaf awareness","items":[
+  {"q":"What should you do when talking to a deaf person who lip-reads?","options":["Shout","Face them and speak normally","Turn away while speaking","Speak very fast"],"answer":1},
+  {"q":"Who should you look at when an interpreter is helping?","options":["The interpreter","The floor","The deaf person","Your phone"],"answer":2},
+  {"q":"Which is a good way to get a deaf person's attention?","options":["Throw something","A gentle wave or tap on the shoulder","Shout their name","Switch the lights off"],"answer":1},
+  {"q":"Is sign language the same everywhere in the world?","options":["Yes","No, each country or region has its own","Only in Asia","Only in schools"],"answer":1}]},
+ {"id":"grammar","title":"ISL grammar","items":[
+  {"q":"Which word order does ISL usually follow?","options":["Verb, subject, object","Subject, object, verb","Object, verb, subject","No order at all"],"answer":1},
+  {"q":"How is a yes/no question shown?","options":["Louder hands","Raised eyebrows","Closing your eyes","Looking away"],"answer":1},
+  {"q":"What does a headshake usually add to a sentence?","options":["A question","Negation","Politeness","Speed"],"answer":1},
+  {"q":"\"Me student\" in ISL is closest to:","options":["I am a student","Are you a student","He is a student","Students are here"],"answer":0}]},
+ {"id":"fingerspelling","title":"Fingerspelling and signs","items":[
+  {"q":"Fingerspelling is mostly used for:","options":["Only numbers","Names and words without a sign","Only emergencies","Nothing"],"answer":1},
+  {"q":"Most letters in Indian Sign Language use:","options":["One finger","Both hands","Only the face","Only the feet"],"answer":1},
+  {"q":"Facial expression in sign language is:","options":["Not needed","Part of the grammar and meaning","Only for jokes","Only for children"],"answer":1},
+  {"q":"Which signs are worth learning first?","options":["Rare words","Greetings and emergency signs","Long sentences","Poems"],"answer":1}]},
+ {"id":"desk","title":"Serving a deaf customer","items":[
+  {"q":"A customer cannot understand your spoken sentence. What next?","options":["Repeat it louder","Type or write it, or use a suggested sentence","Walk away","Ask them to come back with an interpreter"],"answer":1},
+  {"q":"Where should you look while the customer signs?","options":["At the screen","At the customer","At your papers","At the next person in the queue"],"answer":1},
+  {"q":"Why keep short, clear sentences?","options":["They are easier to translate and sign","Deaf people cannot read","It saves paper","It is a rule of the bank"],"answer":0},
+  {"q":"If the system is unsure of a sign, you should:","options":["Guess and continue","Ask the customer to sign again or write it","Cancel the service","Ignore the customer"],"answer":1}]}
+]

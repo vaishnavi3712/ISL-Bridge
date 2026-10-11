@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ISL Bridge</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1675471629/holistic.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js"></script>
+</head>
+<body>
+
+<header>
+  <button id="btnBack" class="iconbtn" title="Back">←</button>
+  <div class="logo">🤟 ISL <span>Bridge</span></div>
+  <div class="tag hide-sm">Interpreter · Learner</div>
+  <div class="hspace"></div>
+  <label class="langbox" title="Language / भाषा / மொழி"><span>🌐</span><select id="langSel" aria-label="Language"></select></label>
+  <div id="acct">
+  {% if me %}<span class="who">{{ me }}</span>
+    {% if role == 'org' %}<a class="btn ghost sm" href="/desk" data-i18n="acct_desk">Service desk</a>{% endif %}
+    <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost sm" data-i18n="acct_out">Log out</button></form>
+  {% else %}<a class="btn ghost sm" href="/login/user" data-i18n="acct_learner">Learner login</a><a class="btn ghost sm" href="/login/org" data-i18n="acct_org">Organisation login</a>{% endif %}
+  </div>
+  <button id="btnAv" class="iconbtn" title="3D / 2D avatar">3D</button>
+  <button id="btnTheme" class="iconbtn" title="Dark / Light mode">🌙</button>
+</header>
+
+<main id="screens">
+
+<!-- ================= HOME ================= -->
+<section class="screen active" id="scr-home">
+  <div class="hero">
+    <h1><span data-i18n="h1a">Talk with your hands.</span><br><em data-i18n="h1b">Learn them too.</em></h1>
+    <p data-i18n="hp">ISL Bridge converts Indian Sign Language to speech, signs your words back, and teaches you ISL step by step — all on your device.</p>
+    <div class="row">
+      <button class="btn green" data-go="scr-learn">🎓 <span data-i18n="b_learn">Start Learning ISL</span></button>
+      <button class="btn" data-go="scr-interp">🤟 <span data-i18n="b_interp">Interpret Signs</span></button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card tcard" data-go="scr-interp"><div class="tico">📷</div><b data-i18n="nav_s2v">Sign → Voice</b><span data-i18n="d_s2v">Camera reads your signs and speaks them aloud.</span></div>
+    <div class="card tcard" data-go="scr-avatar"><div class="tico">🧍</div><b data-i18n="nav_v2s">Voice → Sign</b><span data-i18n="d_v2s">Type or speak — the avatar signs for you.</span></div>
+    <div class="card tcard" data-go="scr-learn"><div class="tico">🎓</div><b data-i18n="nav_learn">Learn ISL</b><span data-i18n="d_learn">5 easy lessons with slow-motion practice.</span></div>
+    <div class="card tcard" data-go="scr-quiz"><div class="tico">🎯</div><b data-i18n="nav_quiz">Practice Quiz</b><span data-i18n="d_quiz">Watch a sign, guess the meaning.</span></div>
+  </div>
+  <div class="card">
+    <b data-i18n="org_t">For hospitals, banks, stations and schools</b>
+    <p class="kv" data-i18n="org_d">A two-way service desk: staff speak or type, the customer signs. Organisations are verified before they get access.</p>
+    <div class="row"><a class="btn" href="{{ '/desk' if role == 'org' else '/login/org' }}" data-i18n="org_b">Open the service desk</a></div>
+  </div>
+  <div class="card">
+    <b>Why ISL is easy to start</b>
+    <ul class="tips">
+      <li>🖐️ No pens, no paper — your hands are the language.</li>
+      <li>👀 Half the meaning is in your <b>face</b> — eyebrows ask questions, mouth shows feelings.</li>
+      <li>🧩 ISL grammar is simple: <b>Subject – Object – Verb</b>. “Me water want” = “I want water.”</li>
+      <li>⏱️ 10 minutes a day is enough to hold a basic conversation in a month.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= INTERPRETER (Sign -> Voice) ================= -->
+<section class="screen" id="scr-interp">
+ <div class="split">
+  <!-- LEFT: camera -->
+  <div class="card pane">
+    <h2><span class="dir d1" data-i18n="nav_s2v">SIGN → VOICE</span> <span data-i18n="cam">Camera</span> <span id="mpStatus" class="kv">loading MediaPipe…</span></h2>
+    <div class="vwrap">
+      <video id="vid" playsinline muted></video>
+      <canvas id="skel" class="vc"></canvas>
+      <div class="hud" id="fpsHud">FPS: --</div>
+      <div class="hud r" id="nmfHud">Non-manual: —</div>
+      <div class="recdot" id="recdot"><i></i><span id="recTxt">Recording…</span></div>
+      <!-- live caption on the camera screen -->
+      <div class="caption" id="camCap">
+        <div class="cap-live" id="capLive"></div>
+        <div class="cap-words" id="capWords"></div>
+        <div class="cap-eng idle" id="capEng" data-i18n="idle_cam">Show a sign to the camera…</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="stFps">0</b><span>FPS (edge)</span></div>
+      <div class="stat"><b id="stMode">—</b><span>Recognizer</span></div>
+      <div class="stat"><b id="stSamples">0</b><span>Trained samples</span></div>
+      <div class="stat"><b id="stBrow">—</b><span>Eyebrow (Q-mark)</span></div>
+    </div>
+    <div class="row">
+      <label class="switch"><input type="checkbox" id="privacy" checked> <span data-i18n="priv">Privacy (skeleton only)</span></label>
+      <label class="switch"><span data-i18n="region">Region</span>
+        <select id="region">
+          <option>Pan-India (standard)</option><option>Delhi NCR</option><option>Mumbai / Maharashtra</option><option>Chennai / Tamil Nadu</option><option>Kolkata / Bengal</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <!-- RIGHT: outcome -->
+  <div class="card pane">
+    <h2>📝 <span data-i18n="outcome">Outcome</span> <span class="kv" data-i18n="out_sub">updates live next to the camera</span></h2>
+    <div class="pred" id="predBox">—<small>sign prediction appears here</small></div>
+    <div class="out big" id="translationOut"><b id="lblTr" data-i18n="lbl_tr">Translation:</b> <span id="engTxt">—</span><span class="g" id="glossTxt"></span></div>
+    <div class="row">
+      <b style="font-size:13px" data-i18n="lbl_seq">Sentence (ISL order):</b>
+      <button class="tgl" id="btnQ" title="Raised-eyebrow non-manual marker">❓ <span data-i18n="q">Question</span></button>
+      <button class="tgl" id="btnNeg" title="Headshake non-manual marker">🚫 <span data-i18n="neg">Negation</span></button>
+      <button class="btn ghost" id="btnUndo" style="padding:6px 12px" title="Undo last sign">↩</button>
+      <button class="btn red" id="btnClear" style="padding:6px 12px" title="Clear">✕</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <label class="switch"><input type="checkbox" id="autoSpeak" checked> 🔊 <span data-i18n="c_audio">Continuous audio</span></label>
+      <label class="switch"><input type="checkbox" id="autoSent" checked> ⏱ <span data-i18n="c_auto">Auto-sentence on pause</span></label>
+    </div>
+    <div class="row">
+      <button class="btn green" id="btnTranslate" data-i18n="b_trans">Translate</button>
+      <button class="btn" id="btnSpeak">🔊 <span data-i18n="b_speak">Speak</span></button>
+    </div>
+    <div class="row" id="quickGloss"></div>
+    <details class="more">
+      <summary>🎓 <span data-i18n="train">Train your own signs</span></summary>
+      <div class="row">
+        <button class="btn" id="btnRec">⏺ Hold to record a new sign</button>
+        <input type="text" id="signLabel" placeholder="Sign label (e.g. WATER)" style="flex:1;min-width:130px;text-transform:uppercase">
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="btnClearLib">Clear library</button>
+      </div>
+      <div class="lib" id="libBox"><b>Sign library:</b> empty — load demo or record your own.</div>
+    </details>
+  </div>
+ </div>
+</section>
+
+<!-- ================= AVATAR (Voice -> Sign) ================= -->
+<section class="screen" id="scr-avatar">
+ <div class="split">
+  <!-- LEFT: avatar -->
+  <div class="card pane">
+    <h2><span class="dir d2" data-i18n="nav_v2s">VOICE → SIGN</span> <span data-i18n="av_title">Avatar Signer</span> <span id="avStatus" class="kv">ready</span></h2>
+    <div class="avatar-wrap">
+      <canvas id="avatar" width="420" height="380"></canvas>
+      <div class="nowsign" id="nowSign">—</div>
+      <div class="caption" id="avCap">
+        <div class="cap-eng idle" id="avCapEng" data-i18n="av_idle">Type or speak to see signs…</div>
+        <div class="cap-words" id="avCapWords"></div>
+      </div>
+    </div>
+  </div>
+  <!-- RIGHT: input / controls -->
+  <div class="card pane">
+    <h2>💬 <span data-i18n="words">Your words</span> <span class="kv" data-i18n="words_sub">type or speak — the avatar signs instantly</span></h2>
+    <textarea id="txtIn" rows="3" data-i18n-ph="ph_txt" placeholder="Type here…"></textarea>
+    <div class="row">
+      <button class="btn green" id="btnToSign">🤟 <span data-i18n="b_show">Show in sign language</span></button>
+      <button class="btn" id="btnMic">🎙️ <span id="micTxt" data-i18n="b_mic">Speak (continuous)</span></button>
+      <button class="btn ghost" id="btnStopAv">■ <span data-i18n="b_stop">Stop</span></button>
+      <label class="switch"><input type="checkbox" id="loopAv"> <span data-i18n="loop">Loop</span></label>
+    </div>
+    <div class="row" id="seqCards"></div>
+    <div class="msglog" id="msglog"></div>
+    <div class="note" data-i18n="av_note">Words not in the sign dictionary are skipped or fingerspelled.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= LEARN HUB ================= -->
+<section class="screen" id="scr-learn">
+  <div class="card">
+    <h2>🎓 <span data-i18n="l_title">Learn ISL</span> <span class="kv" data-i18n="l_sub">the easy way</span></h2>
+    <div class="progress"><div class="pbar" id="learnBar"></div></div>
+    <div class="kv" id="learnPct">0% complete · finish all 5 lessons & take the quiz</div>
+  </div>
+  <div class="grid2" id="lessonCards"></div>
+  <div class="card">
+    <h2>🔤 <span data-i18n="fs">Fingerspelling Trainer</span></h2>
+    <div class="kv" data-i18n="fs_hint">Tap a letter to see the handshape.</div>
+    <div class="fspellrow" id="abcRow"></div>
+    <div class="row">
+      <input type="text" id="spellWord" data-i18n-ph="ph_spell" placeholder="Type a word to spell…" style="flex:1;min-width:150px">
+      <button class="btn" id="btnSpell"><span data-i18n="b_spell">Spell it</span> ▶</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🎥 Video Tutorials <span class="kv">by Deaf educators &amp; ISLRTC</span></h2>
+    <div class="vidgrid">
+      <div class="vid"><iframe src="https://www.youtube.com/embed/qcdivQfA41Y" title="ISL Alphabet" loading="lazy" allowfullscreen></iframe><span>ISL 101 — The Alphabet</span></div>
+      <div class="vid"><iframe src="https://www.youtube.com/embed/5vHmvYA8Z6Q" title="ISL Greetings" loading="lazy" allowfullscreen></iframe><span>Greetings & Salutations (ISLRTC)</span></div>
+      <div class="vid"><iframe src="https://www.youtube.com/embed/VtbYvVDItvg" title="ISL Basic Words" loading="lazy" allowfullscreen></iframe><span>Basic Words, Part 1</span></div>
+      <div class="vid"><iframe src="https://www.youtube.com/embed/OK7ppVdau8M" title="ISL 25 words" loading="lazy" allowfullscreen></iframe><span>25 Golden Words</span></div>
+    </div>
+    <div class="kv">Full free course: <a href="https://www.youtube.com/playlist?list=PLT6EUU11vF9jqtxkhOCIRPI6FnQOfa39B" target="_blank" rel="noopener">ISLRTC Basic ISL Course (10 modules)</a> · <a href="https://www.youtube.com/@ISLRTC" target="_blank" rel="noopener">ISLRTC channel</a></div>
+  </div>
+  <div class="card" id="extrasCard" hidden><h2>📚 <span data-i18n="more_t">More learning material</span></h2><div id="extrasBody"></div></div>
+  <div class="card">
+    <h2>💡 5 rules that make learning ISL easy</h2>
+    <ul class="tips">
+      <li><b>1. Face first.</b> In ISL your eyebrows, mouth and head carry grammar — a raised eyebrow turns a sentence into a question.</li>
+      <li><b>2. Word order: Subject → Object → Verb.</b> Say “You food want?”, not “Do you want food?”. English is rearranged by your listener.</li>
+      <li><b>3. No small words.</b> ISL skips “is/am/are/the”. “Me student” = “I am a student.”</li>
+      <li><b>4. Copy the movement, not just the hand.</b> Every sign has a handshape + where + how it moves. Practice in slow-mo here.</li>
+      <li><b>5. Five signs a day.</b> Tiny daily practice beats weekend cramming — use the quiz to test yourself.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= LESSON ================= -->
+<section class="screen" id="scr-lesson">
+ <div class="split">
+  <div class="card pane">
+    <h2><span id="lessonTitle">Lesson</span> <span class="kv" id="lessonStep">1 / 1</span></h2>
+    <div class="avatar-wrap">
+      <canvas id="lessonAvatar" width="420" height="380"></canvas>
+      <div class="nowsign" id="lessonNow">—</div>
+    </div>
+  </div>
+  <div class="card pane">
+    <div class="meaning" id="lessonMeaning">—</div>
+    <div class="hint" id="lessonHint">—</div>
+    <div class="row">
+      <button class="btn ghost" id="btnPrevW">◀ <span data-i18n="prev">Prev</span></button>
+      <button class="btn green" id="btnReplay">🔁 <span data-i18n="replay">Replay sign</span></button>
+      <button class="btn" id="btnNextW"><span data-i18n="next">Next</span> ▶</button>
+    </div>
+    <div class="row">
+      <label class="switch"><input type="checkbox" id="slowMo"> 🐢 <span data-i18n="slow">Slow motion</span></label>
+      <div class="hspace"></div>
+      <button class="btn ghost" id="btnMarkDone">✔ <span data-i18n="markdone">Mark lesson complete</span></button>
+    </div>
+    <div class="wordsrow" id="lessonWords"></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="screen" id="scr-quiz">
+ <div class="split">
+  <div class="card pane">
+    <h2>🎯 <span data-i18n="quiz_title">Sign Quiz</span> <span class="kv" id="quizScore">0/5</span></h2>
+    <div class="avatar-wrap">
+      <canvas id="quizAvatar" width="420" height="380"></canvas>
+      <div class="nowsign" id="quizNow">Watch the sign…</div>
+    </div>
+  </div>
+  <div class="card pane">
+    <div class="qgrid" id="quizOpts"></div>
+    <div class="row">
+      <button class="btn green" id="btnQuizNext">Start ▶</button>
+      <div class="hspace"></div>
+      <span class="kv" id="quizResult"></span>
+    </div>
+  </div>
+ </div>
+  <div class="card" id="knowCard" hidden>
+    <h2>📝 <span data-i18n="know_t">Knowledge quizzes</span></h2>
+    <div class="kv" data-i18n="know_d">Short multiple-choice quizzes. Your scores are saved to your account.</div>
+    <div id="knowBody"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- bottom tab bar -->
+<nav id="tabbar">
+  <button class="tab active" data-tab="scr-home">🏠<span data-i18n="nav_home">Home</span></button>
+  <button class="tab" data-tab="scr-interp">📷<span data-i18n="nav_s2v">Sign→Voice</span></button>
+  <button class="tab" data-tab="scr-avatar">🧍<span data-i18n="nav_v2s">Voice→Sign</span></button>
+  <button class="tab" data-tab="scr-learn">🎓<span data-i18n="nav_learn">Learn</span></button>
+  <button class="tab" data-tab="scr-quiz">🎯<span data-i18n="nav_quiz">Quiz</span></button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+window.UI_EN={{ ui_en|tojson }};
+window.ISL_LANGS={{ langs|tojson }};
+window.ISL={ role: {{ (role or '')|tojson }}, name: {{ (me or '')|tojson }} };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="/static/js/avatar.js?v=3"></script>
+<script src="/static/js/avatar3d.js?v=3"></script>
+<script src="/static/js/i18n.js?v=3"></script>
+<script src="/static/js/app.js?v=3"></script>
+<script src="/static/js/learn.js?v=3"></script>
+<script src="/static/js/account.js?v=3"></script>
+</body>
+</html>

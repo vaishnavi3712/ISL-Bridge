@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets (never commit these)
+.env
+*.env
+
+# Database created when the app runs (user accounts, progress, feedback)
+islbridge.db
+*.db
+*.sqlite3
+
+# Raw training data (large, download it from Zenodo instead)
+INCLUDE/
+include_zips/
+*.mp4
+*.avi
+*.mov
+*.zip
+
+# Colab work files
+ISL_Bridge_work/
+best.pt
+hand_landmarker.task
+
+# Logs
+*.log
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# model/isl_model.pt, labels.json, pose_library.json and replay.pt are kept
+# on purpose so the project runs straight after cloning.
