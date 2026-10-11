@@ -218,7 +218,7 @@ ISL-Bridge/
 ## How to run
 
 ```bash
-git clone https://github.com/<your-username>/ISL-Bridge.git
+git clone https://github.com/<vaishnavi3712>/ISL-Bridge.git
 cd ISL-Bridge
 
 python -m venv venv
@@ -275,4 +275,4 @@ python continual/update.py
 Project guide: Prof. Priyanshi Borse
  Department of Artificial Intelligence and Machine Learning
 
-Repository link: PASTE_GITHUB_LINK_HERE
+Repository link: https://github.com/vaishnavi3712/ISL-Bridge
