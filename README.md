@@ -150,6 +150,47 @@ Training is done in `ISL_Bridge_Training.ipynb` on Google Colab, using the INCLU
 
 One problem we ran into: some word signs look like letter shapes, so the model kept picking letters. We fixed it by giving word classes more weight in training and boosting their score when predicting (`WORD_BOOST`).
 
+## Results
+
+The model was trained on 84 classes (48 words and 36 letters/digits) with the 70/15/15 train/validation/test split. Training stopped early at epoch 111, and the best checkpoint (best validation accuracy 94.8%) was kept.
+
+### Test set performance
+
+| Metric | Score | Test samples |
+|---|---|---|
+| Top-1 accuracy (all 84 classes) | **95.8%** | 289 |
+| Top-5 accuracy | **98.3%** | 289 |
+| Words only (48 classes) | 96.6% | 87 |
+| Letters and digits only (36 classes) | 95.5% | 202 |
+
+### Validation accuracy during training
+
+| Epoch | Val accuracy | Best so far |
+|---|---|---|
+| 0 | 0.329 | 0.329 |
+| 10 | 0.820 | 0.820 |
+| 20 | 0.882 | 0.882 |
+| 40 | 0.879 | 0.920 |
+| 60 | 0.896 | 0.924 |
+| 80 | 0.927 | 0.938 |
+| 90 | 0.931 | 0.948 |
+| 100 | 0.941 | 0.948 |
+| 110 | 0.941 | 0.948 |
+
+Validation accuracy rose from 32.9% at the start to about 94% by epoch 100. It stopped improving after epoch 90, so early stopping ended training at epoch 111.
+
+### Example prediction
+
+Prediction for a sample whose true label is `i`:
+
+| Rank | Label | Confidence |
+|---|---|---|
+| 1 | i | 0.494 |
+| 2 | curved | 0.017 |
+| 3 | sad | 0.016 |
+
+The correct sign is ranked first, well ahead of the alternatives. The confidence is spread across 84 classes, so even a correct answer can have a score below 0.5.
+
 ## Tech stack
 
 | Area | What we used |
